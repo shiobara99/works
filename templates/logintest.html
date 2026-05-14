@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>卒業制作 - ユーザー登録</title>
+</head>
+<body>
+    <h1>ユーザー登録</h1>
+    <form action="/add" method="POST">
+        <input type="text" name="username" placeholder="名前を入力してください" required>
+        <input type="text" name="email" placeholder="メールアドレスを入力してください" required>
+        <input type="text" name="password" placeholder="パスワードを入力してください" required>
+        <button type="submit">登録</button>
+    </form>
+
+    <hr>
+
+    <h2>登録済みユーザー一覧</h2>
+    <ul>
+        {% for user in users %}
+            <li>ID: {{ user.id }} - 名前: {{ user.name }} - メールアドレス: {{ user.email }} - パスワード: {{ user.password }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
