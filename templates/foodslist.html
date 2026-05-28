@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>冷蔵庫の在庫管理</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f5f5f5; }
+        .warning { background: #fff0f0; }
+        .expired { background: #ffe5e5; }
+        .category-filter { margin-bottom: 14px; }
+        .item-image { width: 60px; height: 60px; object-fit: contain; border: 1px solid #ddd; padding: 4px; background: #fff; }
+        .summary { margin-top: 8px; font-weight: bold; }
+        .message { color: #c00; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+        .form-row label { flex: 1 1 180px; }
+        .form-row input, .form-row select { width: 100%; padding: 6px; }
+    </style>
+</head>
+<body>
+    <h1>冷蔵庫の在庫</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="message">
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="category-filter">
+        <form method="get" action="/">
+            <label>
+                カテゴリで絞り込み:
+                <select name="category">
+                    <option value="" {% if not selected_category %}selected{% endif %}>すべて</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit">絞り込み</button>
+        </form>
+    </div>
+
+    <div class="summary">現在の在庫の合計金額: ¥{{ '%.0f'|format(total_value) }}</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>写真</th>
+                <th>名称</th>
+                <th>カテゴリ</th>
+                <th>数量</th>
+                <th>値段</th>
+                <th>合計</th>
+                <th>期限</th>
+                <th>メモ</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for food in foods %}
+                <tr class="{% if food.is_expired %}expired{% elif food.is_expiring_soon %}warning{% endif %}">
+                    <td><img class="item-image" src="{{ url_for('static', filename='images/' + food.image_name) }}" alt="{{ food.category }}"></td>
+                    <td>{{ food.name }}</td>
+                    <td>{{ food.category }}</td>
+                    <td>{{ food.quantity }}</td>
+                    <td>¥{{ '%.0f'|format(food.unit_price) }}</td>
+                    <td>¥{{ '%.0f'|format(food.total_price) }}</td>
+                    <td>{{ food.expiration_date or '未設定' }}</td>
+                    <td>{{ food.notes or '-' }}</td>
+                    <td>
+                        <a href="/edit/{{ food.id }}">編集</a>
+                        <form action="/delete/{{ food.id }}" method="POST" style="display:inline; margin-left:6px;">
+                            <button type="submit" onclick="return confirm('削除してもよろしいですか？');">削除</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>食材を追加する</h2>
+    <form action="/add" method="POST">
+        <div class="form-row">
+            <label>名称<br><input type="text" name="name" required></label>
+            <label>カテゴリ<br>
+                <select name="category" required>
+                    <option value="">選択してください</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="form-row">
+            <label>数量<br><input type="number" name="quantity" min="0" step="0.1" value="1" required></label>
+            <label>値段<br><input type="number" name="unit_price" min="0" step="1" value="0" required></label>
+            <label>期限<br><input type="date" name="expiration_date"></label>
+        </div>
+        <div class="form-row">
+            <label style="flex: 1 1 100%;">メモ<br><input type="text" name="notes"></label>
+        </div>
+        <button type="submit">追加</button>
+    </form>
+</body>
+</html>

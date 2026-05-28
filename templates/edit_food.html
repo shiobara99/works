@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>食材の編集</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        label { display: block; margin-bottom: 10px; }
+        input, select { width: 100%; padding: 8px; margin-top: 4px; }
+        button { padding: 8px 14px; }
+    </style>
+</head>
+<body>
+    <h1>食材を編集</h1>
+
+    <form action="/edit/{{ food.id }}" method="POST">
+        <label>名称
+            <input type="text" name="name" value="{{ food.name }}" required>
+        </label>
+        <label>カテゴリ
+            <select name="category" required>
+                {% for category in categories %}
+                    <option value="{{ category }}" {% if food.category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>数量
+            <input type="number" name="quantity" min="0" step="0.1" value="{{ food.quantity }}" required>
+        </label>
+        <label>単価
+            <input type="number" name="unit_price" min="0" step="0.01" value="{{ food.unit_price }}" required>
+        </label>
+        <label>期限
+            <input type="date" name="expiration_date" value="{{ food.expiration_date }}">
+        </label>
+        <label>メモ
+            <input type="text" name="notes" value="{{ food.notes or '' }}">
+        </label>
+        <button type="submit">更新</button>
+    </form>
+
+    <p><a href="/">一覧に戻る</a></p>
+</body>
+</html>

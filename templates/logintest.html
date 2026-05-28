@@ -5,11 +5,39 @@
     <title>卒業制作 - ユーザー登録</title>
 </head>
 <body>
-    <h1>ユーザー登録</h1>
+    <h1>ユーザー管理</h1>
+
+    {% if current_user %}
+        <p>ログイン中: {{ current_user.name }} ({{ current_user.email }})</p>
+        <form action="/logout" method="GET">
+            <button type="submit">ログアウト</button>
+        </form>
+    {% else %}
+        <h2>ログイン</h2>
+        <form action="/login" method="POST">
+            <input type="text" name="login_email" placeholder="メールアドレス" required>
+            <input type="password" name="login_password" placeholder="パスワード" required>
+            <button type="submit">ログイン</button>
+        </form>
+    {% endif %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <hr>
+
+    <h2>ユーザー登録</h2>
     <form action="/add" method="POST">
         <input type="text" name="username" placeholder="名前を入力してください" required>
-        <input type="text" name="email" placeholder="メールアドレスを入力してください" required>
-        <input type="text" name="password" placeholder="パスワードを入力してください" required>
+        <input type="email" name="email" placeholder="メールアドレスを入力してください" required>
+        <input type="password" name="password" placeholder="パスワードを入力してください" required>
         <button type="submit">登録</button>
     </form>
 
@@ -18,7 +46,7 @@
     <h2>登録済みユーザー一覧</h2>
     <ul>
         {% for user in users %}
-            <li>ID: {{ user.id }} - 名前: {{ user.name }} - メールアドレス: {{ user.email }} - パスワード: {{ user.password }}</li>
+            <li>ID: {{ user.user_id }} - 名前: {{ user.name }} - メールアドレス: {{ user.email }}</li>
         {% endfor %}
     </ul>
 </body>
